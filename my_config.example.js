@@ -1,35 +1,26 @@
 module.exports = Object.freeze({
     /** 
      * 默认设置(公用)
+     * 修改公用设置可填写到最下方
+     * 单独设置区将会覆盖公共设置
      */
     default_config: {
         /**
          * 监视更转的用户uid
          */
-        UIDs: [
-            689277291,
-            241675899
-        ],
-
-        /**
-         * 监视的专栏关键词
-         */
-        Articles: [
-            '抽奖合集'
-        ],
+        UIDs: [],
 
         /**
          * 监视的tag
          */
-        TAGs: [
-            '互动抽奖',
-            '转发抽奖',
-            '动态抽奖',
-            '抽奖',
-        ],
+        TAGs: [],
 
         /**
-         * 从API接口中获取抽奖信息
+         * 监视的专栏关键词
+         */
+        Articles: [],
+
+        /**
          * @typedef {object} LotteryInfo
          * @property {string} lottery_info_type
          * @property {number} create_time
@@ -38,33 +29,65 @@ module.exports = Object.freeze({
          * @property {string} uname
          * @property {Array<{}>} ctrl
          * @property {string} dyid
+         * @property {string} reserve_id
+         * @property {string} reserve_lottery_text
          * @property {string} rid
          * @property {string} des
          * @property {number} type
          * @property {boolean} hasOfficialLottery 是否官方
-         * @typedef RespondBody
+         * @typedef {object} RespondBody
          * @property {string} err_msg 错误信息
          * @property {LotteryInfo[]} lottery_info
-         * API传回数据类型 {RespondBody}
+         * 
+         * - 从API接口中获取抽奖信息
          * 获取抽奖信息的链接字符串
          * @example
-         * "https://github.com/spiritLHL/sync_lottery"
+         * ["https://github.com/spiritLHL/sync_lottery"]
+         * 
+         * - 从当前路径下符合要求的文件中获取
+         * 文件名
+         * @example
+         * ["file://lottery_info_1.json"]
          */
-        APIs: [],
+        APIs: ['file://lottery_info_1.json'],
+
+        /**
+         * lottery_dyids目录下抽奖动态文件名(如dyids.txt)
+         * 一行一个dyids(非数字字符分割即可)
+         */
+        TxT: ['dyids.txt'],
+
+        /**
+         * 抽奖参与顺序组合
+         * * 0 - UIDs
+         * * 1 - TAGs
+         * * 2 - Articles
+         * * 3 - APIs
+         * * 4 - TxT
+         * @example
+         * [3,2,1,0]
+         * [1,2,1,2,1]
+         */
+        LotteryOrder: [2, 0, 1, 3],
+
+        /**
+         * 保存抽奖信息至文件
+         */
+        save_lottery_info_to_file: false,
 
         /**
          * API发送数据类型 {LotteryInfo[]}
          * 上传抽奖信息的链接字符串
          */
-        set_lottery_info_url: "",
+        set_lottery_info_url: '',
 
         /**
          * 动态中的关键词(表示须同时满足以下条件)
          * 符合js正则表达式的字符串
          */
         key_words: [
-            "[抽奖送揪]|福利",
-            "[转关评粉]|参与"
+            '[抽奖送揪]|福利',
+            '[转关评粉]|参与'
         ],
 
         /**
@@ -84,11 +107,23 @@ module.exports = Object.freeze({
         chatmodel: '01',
 
         /**
+         * 不参与预约抽奖
+         */
+        disable_reserve_lottery: false,
+
+        /**
+         * 不转关预约抽奖
+         * - 预约抽奖可能与转发抽奖并存
+         */
+        is_not_relay_reserve_lottery: false,
+
+        /**
          * 检查是否重复转发
          * - 不检查 -1
-         * - 通过是否点赞判断 0
+         * - 通过是否点赞判断(自动点赞) 0
          * - 检索本地dyids文件 1
-         * - 通过是否点赞判断+检索本地dyids文件 2
+         * - 通过是否点赞判断(不自动点赞)+检索本地dyids文件 2
+         * - 通过是否点赞判断(自动点赞)+检索本地dyids文件 3
          */
         check_if_duplicated: 1,
 
@@ -163,7 +198,6 @@ module.exports = Object.freeze({
         lottery_loop_wait: 0,
         check_loop_wait: 0,
         clear_loop_wait: 0,
-        update_loop_wait: 0,
 
         /**
          * - 转发间隔时间
@@ -213,6 +247,12 @@ module.exports = Object.freeze({
          * - 单位毫秒
          */
         random_dynamic_wait: 2000,
+
+        /**
+         * - 预约抽奖间隔
+         * - 单位毫秒
+         */
+        reserve_lottery_wait: 6000,
 
         /**
          * - up主粉丝数限制
@@ -271,15 +311,9 @@ module.exports = Object.freeze({
         blacklist: '',
 
         /**
-         * - 自动同步 https://gitee.com/shanmite/lottery-notice/raw/master/notice.json
-         * - 使用公共黑名单
-         */
-        use_public_blacklist: true,
-
-        /**
          * 屏蔽词
          */
-        blockword: ["脚本", "抽奖号", "钓鱼"],
+        blockword: ['脚本', '抽奖号', '钓鱼'],
 
         /**
          * 转发并评论
@@ -308,13 +342,28 @@ module.exports = Object.freeze({
         ],
 
         /**
+         * 是否抄热评
+         */
+        is_copy_chat: false,
+
+        /**
+         * 热评屏蔽词
+         */
+        copy_blockword: ['三不原则'],
+
+        /**
          * - 抽奖UP用户分组id(网页端点击分区后地址栏中的tagid)
          * - 自动获取
          */
         partition_id: 0,
 
         /**
-         * 是否关注异常
+         * - 是否不为抽奖UP单独设置关注分区
+         */
+        is_not_create_partition: false,
+
+        /**
+         * 是否异常
          */
         is_exception: false,
 
@@ -330,10 +379,10 @@ module.exports = Object.freeze({
          * - 优先级递增
          */
         notice_key_words: [
-            "~预约成功|预约主题",
-            "中奖|获得|填写|写上|提供|收货地址|支付宝账号|码|大会员",
-            "~你的账号在新设备或平台登录成功",
-            "~你预约的直播已开始"
+            '~预约成功|预约主题',
+            '中奖|获得|填写|写上|提供|收货地址|支付宝账号|码|大会员',
+            '~你的账号在新设备或平台登录成功',
+            '~你预约的直播已开始'
         ],
 
         /**
@@ -355,6 +404,7 @@ module.exports = Object.freeze({
         /**
          * - 取关分区
          * - 默认为: 此处存放因抽奖临时关注的up
+         * - 可用逗号分割以取关多分区
          */
         clear_partition: '',
 
@@ -370,6 +420,13 @@ module.exports = Object.freeze({
         clear_quick_remove_attention: false,
 
         /**
+         * - 快速移除关注
+         * - 不加判断只去除关注
+         * - 移除粉丝数小于指定数量的
+         */
+        clear_quick_remove_attention_fans_number_smallest: Infinity,
+
+        /**
          * 是否移除动态
          */
         clear_remove_dynamic: true,
@@ -380,7 +437,7 @@ module.exports = Object.freeze({
         clear_remove_attention: true,
 
         /**
-         * 清除动态延时(毫秒)
+         * 清除延时(毫秒)
          */
         clear_remove_delay: 8000,
 
@@ -409,7 +466,28 @@ module.exports = Object.freeze({
      * 针对某一账号的特别设置
      * config_[数字] 依次类推
      */
-    config_1: {},
+    config_1: {
+        /**
+         * 手动添加抽奖号UID
+         * - 抽奖动态下的二级小号
+         */
+        UIDs: [],
+
+        TAGs: [
+            '互动抽奖',
+            '转发抽奖',
+            '动态抽奖',
+            '抽奖',
+        ],
+
+        Articles: [
+            '抽奖合集'
+        ],
+
+        APIs: [],
+
+        save_lottery_info_to_file: true,
+    },
     config_2: {},
     config_3: {}
-})
+});

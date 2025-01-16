@@ -1,15 +1,21 @@
 {
   "name": "lottery-auto-script",
-  "version": "2.5.5",
+  "version": "2.9.4",
   "description": "自动参与B站动态抽奖",
   "main": "main.js",
   "scripts": {
+    "login": "node main.js login",
     "start": "node main.js start",
+    "test": "node test/index.js",
     "clear": "node main.js clear",
     "check": "node main.js check",
     "update": "node main.js update",
-    "build_all": "bash script/build/pkg.sh",
-    "changelog": "bash script/build/changelog.sh"
+    "account": "node main.js account",
+    "help": "node main.js help",
+    "pkg": "bash script/build/pkg.sh",
+    "changelog": "bash script/build/changelog.sh",
+    "lint": "npx eslint lib/ test/ *.js",
+    "lint-fix": "npx eslint lib/ test/ *.js --fix"
   },
   "files": [
     "lib",
@@ -21,17 +27,6 @@
     "README.md"
   ],
   "bin": "main.js",
-  "pkg": {
-    "targets": [
-      "node12-win-x64",
-      "node16-win-x64",
-      "node16-linux-x64",
-      "node16-macos-x64",
-      "node16-linuxstatic-arm64",
-      "node16-linuxstatic-armv7"
-    ],
-    "outputPath": "dist"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/shanmiteko/AutoScript.git"
@@ -52,6 +47,9 @@
   },
   "dependencies": {
     "chalk": "^4.1.2",
-    "nodemailer": "^6.7.0"
+    "http-proxy-agent": "^7.0.0",
+    "https-proxy-agent": "^7.0.0",
+    "nodemailer": "^6.7.0",
+    "@catlair/blogin": "^0.0.8"
   }
 }
